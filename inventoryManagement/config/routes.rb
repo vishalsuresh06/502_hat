@@ -12,4 +12,11 @@ Rails.application.routes.draw do
       get 'delete'
     end
   end  
+
+  resources :categories, param: :name do
+    member do
+      get 'delete'
+    end
+  end
+  
 end
