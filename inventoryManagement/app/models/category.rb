@@ -1,4 +1,6 @@
 class Category < ApplicationRecord
-    belongs_to :parent_category, foreign_key: "parent_category", optional: true
-    has_many :items, foreign_key: "category_name"
+    self.primary_key = "cat_id"
+    has_many :items, foreign_key: "category_id", dependent: :destroy
+
+    validate :name, presence: true
 end
