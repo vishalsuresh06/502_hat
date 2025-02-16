@@ -30,6 +30,7 @@
           <th class="tableCell">Current User</th>
           <th class="tableCell">SKU</th>
           <th class="tableCell">Delete</th>
+          <th class="tableCell">Edit</th>
         </tr>
       </thead>
       <tbody>
@@ -45,6 +46,9 @@
             <td class="tableCell"><%= inventory.sku %></td>
             <td class="tableCell actions">
               <%= link_to("Delete", delete_inventory_path(inventory), class: "deleteButton") %>
+            </td>
+            <td class="tableCell actions">
+              <%= link_to("Edit", edit_inventory_path(inventory), class: "deleteButton") %>
             </td>
           </tr>
         <% end %>
