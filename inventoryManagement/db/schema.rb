@@ -10,12 +10,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_02_15_235302) do
+ActiveRecord::Schema[7.0].define(version: 2025_02_16_002416) do
   create_table "categories", primary_key: "cat_id", id: :string, force: :cascade do |t|
     t.string "icon"
     t.string "color_code"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "name", default: "Unnamed Category", null: false
   end
 
   create_table "departments", primary_key: "dept_id", id: :string, force: :cascade do |t|
