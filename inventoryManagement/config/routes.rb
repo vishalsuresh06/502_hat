@@ -8,7 +8,7 @@ Rails.application.routes.draw do
   end
 
   resources :inventories
-
+  resources :users, param: :email, format: false, constraints: { email: /[^\/]+/ }
   resources :categories, param: :cat_id do
     member do
       get 'delete'
