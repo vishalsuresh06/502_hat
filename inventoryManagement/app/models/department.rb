@@ -1,3 +1,4 @@
 class Department < ApplicationRecord
-    has_many :users, foreign_key: "department_id"
+    self.primary_key = "dept_id"
+    has_many :users, foreign_key: "dept_id", dependent: :nullify
 end

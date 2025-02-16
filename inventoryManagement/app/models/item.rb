@@ -1,3 +1,5 @@
 class Item < ApplicationRecord
-    belongs_to :category, foreign_key: "category_name"
+    self.primary_key = "item_id"
+    belongs_to :category, foreign_key: "category_id"
+    has_many :inventories, foreign_key: "item_id", dependent: :destroy
 end
