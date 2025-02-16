@@ -5,6 +5,6 @@ class Inventory < ApplicationRecord
     belongs_to :current_user, class_name: "User", foreign_key: "user_email"
 
     def self.search(query)
-        joins(:item).where("items.name ILIKE ?", "%#{query}%")
+        joins(:item).where("items.name LIKE ?", "%#{query}%")
     end
 end
