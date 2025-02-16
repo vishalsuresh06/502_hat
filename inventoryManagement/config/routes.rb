@@ -7,6 +7,12 @@ Rails.application.routes.draw do
     get 'admins/sign_out', to: 'admins/sessions#destroy', as: :destroy_admin_session
   end
 
+  resources :departments do
+    member do
+      get :delete
+    end
+  end
+
   resources :inventories
   resources :users, param: :email, format: false, constraints: { email: /[^\/]+/ }
   resources :categories, param: :cat_id do
