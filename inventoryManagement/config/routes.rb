@@ -13,7 +13,12 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :inventories
+  resources :inventories do
+    member do
+      get :delete
+    end
+  end
+
   resources :users, param: :email, format: false, constraints: { email: /[^\/]+/ }
   resources :categories, param: :cat_id do
     member do
