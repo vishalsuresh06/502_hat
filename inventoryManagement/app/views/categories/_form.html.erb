@@ -5,11 +5,6 @@
     </div>
   
     <div>
-      <%= form.label :parent_category %>
-      <%= form.collection_select :parent_category_id, ParentCategory.all, :id, :parent_category, prompt: 'Select Parent Category' %>
-    </div>
-  
-    <div>
       <%= form.label :icon %>
       <%= form.text_field :icon %>
     </div>

@@ -2,11 +2,11 @@
 
 class CategoriesController < ApplicationController
     def index
-      @categories = Category.order(:name)
+      @categories = Category.order(:cat_id)
     end
   
     def show
-      @category = Category.find_by!(name: params[:name])
+      @category = Category.find(params[:cat_id])
     end
   
     def new
@@ -24,11 +24,11 @@ class CategoriesController < ApplicationController
     end
   
     def edit
-      @category = Category.find_by!(name: params[:name])
+      @category = Category.find(params[:cat_id])
     end
   
     def update
-      @category = Category.find_by!(name: params[:name])
+      @category = Category.find(params[:cat_id])
       if @category.update(category_params)
         redirect_to(category_path(@category), notice: 'Category was successfully updated.')
       else
@@ -38,11 +38,11 @@ class CategoriesController < ApplicationController
     end
   
     def delete
-      @category = Category.find_by!(name: params[:name])
+      @category = Category.find(params[:cat_id])
     end
   
     def destroy
-      @category = Category.find_by!(name: params[:name])
+      @category = Category.find(params[:cat_id])
       @category.destroy
       redirect_to(categories_path, notice: 'Category was successfully deleted.')
     end
@@ -50,7 +50,7 @@ class CategoriesController < ApplicationController
     private
   
     def category_params
-      params.require(:category).permit(:name, :parent_category_id, :icon, :color_code)
+      params.require(:cat_id).permit(:cat_id, :icon, :color_code)
     end
   end
   
