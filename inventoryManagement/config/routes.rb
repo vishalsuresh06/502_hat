@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
   root to: 'dashboards#show'
+
   devise_for :admins, controllers: { omniauth_callbacks: 'admins/omniauth_callbacks' }
   devise_scope :admin do
     get 'admins/sign_in', to: 'admins/sessions#new', as: :new_admin_session
@@ -7,4 +8,11 @@ Rails.application.routes.draw do
   end
 
   resources :inventories
+
+  resources :categories, param: :cat_id do
+    member do
+      get 'delete'
+    end
+  end
+  
 end

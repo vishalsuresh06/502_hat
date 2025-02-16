@@ -4,3 +4,4 @@ class Category < ApplicationRecord
 
     validate :name, presence: true
 end
+  
