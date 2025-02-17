@@ -1,21 +1,9 @@
 inherit_from: .rubocop_todo.yml
 
-AllCops:
+Metrics/BlockLength:
   Exclude:
-    - "db/**/*"
-    - "config/**/*"
-    - "script/**/*"
-    - "bin/{rails,rake}"
-    - !ruby/regexp /old_and_unused\.rb$/
-
-  Include:
-    - "**/*.rb"
-    - "**/*.gemfile"
-    - "**/*.gemspec"
-    - "**/*.rake"
-    - "**/*.ru"
-    - "**/Gemfile"
-    - "**/Rakefile"
+    - config/**/*
+    - spec/**/*
 
 Style/BlockComments: #Limited Comments
   Enabled: false
