@@ -46,9 +46,6 @@ Naming/MemoizedInstanceVariableName: #No underscore
 Naming/ConstantName: #Constants have uppercase
   EnforcedStyle: "UPPER_CASE"
 
-Rails/EnumUniqueness:
-  Enabled: true # Ensure enums are unique
-
 Style/MethodDefParentheses:
   Enabled: true
   EnforcedStyle: require_parentheses # Use parentheses only if method has parameters
