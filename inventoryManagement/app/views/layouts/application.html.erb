@@ -1,27 +1,40 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>GoogleOauthDevise</title>
-<%= csrf_meta_tags %>
-<%= csp_meta_tag %>
+  <title>GoogleOauthDevise</title>
+  <%= csrf_meta_tags %>
+  <%= csp_meta_tag %>
 
-<%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-
-track': 'reload' %>
-<%= javascript_importmap_tags %>
+  <!-- Stylesheets -->
+  <%= stylesheet_link_tag "application", media: "all", "data-turbo-track": "reload" %>
+  <%= javascript_importmap_tags %>
 
-<style>
-.flash__alert { color: red; }
-.flash__notice { color: blue; }
-.flash__success { color: green; }
-</style>
+  <!-- Bootstrap (Ensure it's included) -->
+  <%= stylesheet_link_tag "https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" %>
+
+  <style>
+    .flash__alert { color: red; }
+    .flash__notice { color: blue; }
+    .flash__success { color: green; }
+  </style>
 </head>
+
 <body>
-<% if flash.any? %>
-<% flash.each do |key, value| -%>
-<section class="flash flash__<%= key %>"><%= value.html_safe
-%></section>
-<% end -%>
-<% end %>
-<%= yield %>
+  <!-- Flash Messages (Styled with Bootstrap) -->
+  <% if flash.any? %>
+    <div class="container mt-3">
+      <% flash.each do |key, value| %>
+        <div class="alert alert-<%= bootstrap_flash_class(key) %> alert-dismissible fade show" role="alert">
+          <%= value.html_safe %>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <%= yield %>
+
+  <!-- Bootstrap JavaScript -->
+  <%= javascript_include_tag "https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js", defer: true %>
 </body>
 </html>

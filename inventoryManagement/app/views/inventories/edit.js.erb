@@ -1,0 +1,9 @@
+$('#addToInventoryModal').modal('hide');
+$('#inventory-form')[0].reset();
+
+$('#flash-messages').html('<div class="alert alert-success">Item successfully added to inventory!</div>');
+$.ajax({
+  url: "/inventories",
+  type: "GET",
+  dataType: "script"
+});
