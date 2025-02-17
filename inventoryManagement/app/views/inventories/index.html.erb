@@ -1,32 +1,332 @@
+<!-- filepath: /c:/Users/griff/Desktop/School/CSCE-431/502_hat/inventoryManagement/app/views/inventories/index.html.erb -->
 <h1>Inventory List</h1>
 
+<!-- Flash Messages -->
+<div id="flash-messages"></div>
+
+<!-- Search Form -->
 <%= form_with url: inventories_path, method: :get, local: true do |form| %>
   <%= form.label :search, "Search by Item Name:" %>
-  <%= form.text_field :search, value: params[:search], placeholder: "Enter item name..." %>
-  <%= form.submit "Search" %>
+  <%= form.text_field :search, value: params[:search], placeholder: "Enter item name...", class: "form-control d-inline-block w-auto" %>
+  <%= hidden_field_tag :sort, params[:sort] %>
+  <%= hidden_field_tag :direction, params[:direction] %>
+  <%= form.submit "Search", class: "btn btn-primary" %>
 <% end %>
 
-<table>
-  <thead>
-    <tr>
-      <th>Inventory ID</th>
-      <th>Item Name</th>
-      <th>Location</th>
-      <th>Condition</th>
-      <th>Owner</th>
-      <th>Current User</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% @inventories.each do |inventory| %>
+<!-- Buttons to Open Modals -->
+<div class="d-flex gap-3 my-3">
+  <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addItemModal">
+    Add New Item
+  </button>
+
+  <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addToInventoryModal">
+    Add to Inventory
+  </button>
+</div>
+
+<!-- Inventory List (Wrapped in a Div for AJAX Updates) -->
+<div id="inventory-list">
+  <table class="table table-bordered mt-4">
+    <thead class="table-dark">
       <tr>
-        <td><%= inventory.inv_id %></td>
-        <td><%= inventory.item.name %></td>
-        <td><%= inventory.location %></td>
-        <td><%= inventory.condition_of_item %></td>
-        <td><%= inventory.original_owner.name %></td>
-        <td><%= inventory.current_user.name %></td>
+        <th><%= sortable "inv_id", "ID" %></th>
+        <th><%= sortable "name", "Item Name" %></th>
+        <th><%= sortable "sku", "SKU" %></th>
+        <th><%= sortable "location", "Location" %></th>
+        <th><%= sortable "condition_of_item", "Condition" %></th>
+        <th><%= sortable "owner_email", "Owner" %></th>
+        <th><%= sortable "user_email", "Current User" %></th>
+        <th>Actions</th>
       </tr>
-    <% end %>
-  </tbody>
-</table>
+    </thead>
+    <tbody>
+      <% @inventories.each do |inventory| %>
+        <tr>
+          <td><%= inventory.inv_id %></td>
+          <td><%= inventory.item.name %></td>
+          <td><%= inventory.sku %></td>
+          <td><%= inventory.location %></td>
+          <td><%= inventory.condition_of_item %></td>
+          <td><%= inventory.original_owner.email %></td>
+          <td><%= inventory.current_user.email %></td>
+          <td>
+            <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editInventoryModal" data-inventory-id="<%= inventory.inv_id %>">
+              Edit
+            </button>
+            <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteConfirmationModal" data-inventory-id="<%= inventory.inv_id %>">
+              Delete
+            </button>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteConfirmationModal" tabindex="-1" aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteConfirmationModalLabel">Confirm Delete</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete this item?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <%= form_with url: "#", method: :delete, local: true, id: "delete-form" do %>
+          <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+          <button type="submit" class="btn btn-danger" id="confirm-delete-btn">Delete</button>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- Bootstrap Modal for Adding a New Item -->
+<div class="modal fade" id="addItemModal" tabindex="-1" aria-labelledby="addItemModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addItemModalLabel">Create New Item</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <%= form_with model: @item, url: items_path, remote: true, id: "item-form" do |form| %>
+          <div class="mb-3">
+            <%= form.label :name, "Item Name", class: "form-label" %>
+            <%= form.text_field :name, required: true, class: "form-control" %>
+          </div>
+
+          <div class="mb-3">
+            <%= form.label :description, "Description", class: "form-label" %>
+            <%= form.text_area :description, rows: 3, class: "form-control" %>
+          </div>
+
+          <div class="mb-3">
+            <%= form.label :category_id, "Category", class: "form-label" %>
+            <%= form.collection_select :category_id, Category.all, :cat_id, :name, prompt: "Select a Category", class: "form-control" %>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <%= form.submit "Create Item", class: "btn btn-primary" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- Edit Inventory Modal -->
+<div class="modal fade" id="editInventoryModal" tabindex="-1" aria-labelledby="editInventoryModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editInventoryModalLabel">Edit Inventory</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <%= form_with model: @inventory, url: "#", method: :patch, local: true, id: "edit-inventory-form" do |form| %>
+          <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+          <div class="mb-3">
+            Editing Item: <strong id="edit-item-name"></strong>
+          </div>
+
+          <div class="mb-3">
+            <%= form.label :item_id, "Select Item", class: "form-label" %>
+            <%= form.collection_select :item_id, Item.all, :id, :name, prompt: "Choose an item", class: "form-control" %>
+          </div>
+
+          <div class="mb-3">
+            <%= form.label :year_of_purchase, "Year of Purchase", class: "form-label" %>
+            <%= form.date_select :year_of_purchase, class: "form-control" %>
+          </div>
+
+          <div class="mb-3">
+            <%= form.label :location, "Location", class: "form-label" %>
+            <%= form.text_field :location, class: "form-control" %>
+          </div>
+
+          <div class="mb-3">
+            <%= form.label :condition_of_item, "Condition", class: "form-label" %>
+            <%= form.text_field :condition_of_item, class: "form-control" %>
+          </div>
+
+          <div class="mb-3">
+            <%= form.label :owner_email, "Owner Email", class: "form-label" %>
+            <%= form.collection_select :owner_email, User.all, :email, :name, prompt: "Select Owner", class: "form-control" %>
+          </div>
+
+          <div class="mb-3">
+            <%= form.label :user_email, "Current User Email", class: "form-label" %>
+            <%= form.collection_select :user_email, User.all, :email, :name, prompt: "Select Current User", class: "form-control" %>
+          </div>
+
+          <div class="mb-3">
+            <%= form.label :sku, "SKU", class: "form-label" %>
+            <%= form.text_field :sku, class: "form-control" %>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <%= form.submit "Update Inventory", class: "btn btn-primary" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- Bootstrap Modal for Adding to Inventory -->
+<div class="modal fade" id="addToInventoryModal" tabindex="-1" aria-labelledby="addToInventoryModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addToInventoryModalLabel">Add Item to Inventory</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <%= form_with model: @inventory, url: inventories_path, remote: true, id: "inventory-form" do |form| %>
+          <div class="mb-3">
+            <%= form.label :item_id, "Select Item", class: "form-label" %>
+            <%= form.collection_select :item_id, Item.all, :item_id, :name, prompt: "Choose an item", class: "form-control" %>
+          </div>
+
+          <div class="mb-3">
+            <%= form.label :year_of_purchase, "Year of Purchase", class: "form-label" %>
+            <%= form.date_select :year_of_purchase, class: "form-control" %>
+          </div>
+
+          <div class="mb-3">
+            <%= form.label :location, "Location", class: "form-label" %>
+            <%= form.text_field :location, class: "form-control" %>
+          </div>
+
+          <div class="mb-3">
+            <%= form.label :condition_of_item, "Condition", class: "form-label" %>
+            <%= form.text_field :condition_of_item, class: "form-control" %>
+          </div>
+
+          <div class="mb-3">
+            <%= form.label :owner_email, "Owner Email", class: "form-label" %>
+            <%= form.collection_select :owner_email, User.all, :email, :name, prompt: "Select Owner", class: "form-control" %>
+          </div>
+
+          <div class="mb-3">
+            <%= form.label :user_email, "Current User Email", class: "form-label" %>
+            <%= form.collection_select :user_email, User.all, :email, :name, prompt: "Select Current User", class: "form-control" %>
+          </div>
+
+          <div class="mb-3">
+            <%= form.label :sku, "SKU", class: "form-label" %>
+            <%= form.text_field :sku, class: "form-control" %>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <%= form.submit "Add to Inventory", class: "btn btn-success" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var deleteModal = document.getElementById('deleteConfirmationModal');
+    var deleteForm = document.getElementById('delete-form');
+
+    deleteModal.addEventListener('show.bs.modal', function(event) {
+      var button = event.relatedTarget;
+      var inventoryId = button.getAttribute('data-inventory-id');
+      var deleteUrl = '/inventories/' + inventoryId;
+
+      deleteForm.setAttribute('action', deleteUrl);
+    });
+  });
+</script>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var editModal = document.getElementById('editInventoryModal');
+  var editForm = document.getElementById('edit-inventory-form');
+
+  editModal.addEventListener('show.bs.modal', function(event) {
+    var button = event.relatedTarget;
+    var inventoryId = button.getAttribute('data-inventory-id');
+    var editUrl = '/inventories/' + inventoryId;
+
+    // Fetch inventory data using AJAX (ensure your controller renders the associated item name as "item_name")
+    fetch(editUrl + '/edit')
+      .then(response => response.json())
+      .then(data => {
+        // Update the form action to point to the correct inventory update path
+        editForm.action = editUrl;
+        
+        // Set the item name in the display element
+        document.getElementById('edit-item-name').textContent = data.item_name;
+
+        // Prefill the form fields with the current inventory values
+        if(editForm.querySelector('[name="inventory[item_id]"]')) {
+          editForm.querySelector('[name="inventory[item_id]"]').value = data.item_id;
+        }
+        if(editForm.querySelector('[name="inventory[year_of_purchase]"]')) {
+          editForm.querySelector('[name="inventory[year_of_purchase]"]').value = data.year_of_purchase;
+        }
+        if(editForm.querySelector('[name="inventory[location]"]')) {
+          editForm.querySelector('[name="inventory[location]"]').value = data.location;
+        }
+        if(editForm.querySelector('[name="inventory[condition_of_item]"]')) {
+          editForm.querySelector('[name="inventory[condition_of_item]"]').value = data.condition_of_item;
+        }
+        if(editForm.querySelector('[name="inventory[owner_email]"]')) {
+          editForm.querySelector('[name="inventory[owner_email]"]').value = data.owner_email;
+        }
+        if(editForm.querySelector('[name="inventory[user_email]"]')) {
+          editForm.querySelector('[name="inventory[user_email]"]').value = data.user_email;
+        }
+        if(editForm.querySelector('[name="inventory[sku]"]')) {
+          editForm.querySelector('[name="inventory[sku]"]').value = data.sku;
+        }
+      });
+  });
+
+  editForm.addEventListener('submit', function(event) {
+    event.preventDefault();
+    var formData = new FormData(editForm);
+    var editUrl = editForm.action;
+
+    fetch(editUrl, {
+      method: 'PATCH',
+      body: formData,
+      headers: {
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.status === 'success') {
+        // Handle success response
+        $.ajax({
+          url: "/inventories",
+          type: "GET",
+          dataType: "script"
+        });
+      } else {
+        alert('Failed to update inventory item: ' + data.errors.join(', '));
+      }
+    });
+  });
+});
+</script>

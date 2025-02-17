@@ -1,0 +1,8 @@
+<h1><%= @item.name %></h1>
+
+<p><strong>Description:</strong> <%= @item.description %></p>
+<p><strong>Category:</strong> <%= @item.category.name if @item.category %></p>
+
+<%= link_to "Back to Items", items_path %> |
+<%= link_to "Edit Item", edit_item_path(@item) %> |
+<%= link_to "Delete", item_path(@item), method: :delete, data: { confirm: "Are you sure?" } %>
