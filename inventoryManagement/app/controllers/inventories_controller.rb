@@ -1,29 +1,26 @@
 class InventoriesController < ApplicationController
     before_action :set_inventory, only: [:show, :edit, :update, :destroy]
     def index
-        # @inventories = params[:search].present? ? Inventory.search(params[:search]) : Inventory.all
-        # @item = Item.new
-        # @inventory = Inventory.new
         @item = Item.new
         @inventory = Inventory.new
-
-        sort_column = params[:sort] || 'inv_id'
+    
+        sort_column = params[:sort].presence_in(Inventory.column_names + ['name']) || 'inv_id'
         sort_direction = params[:direction] == "desc" ? "desc" : "asc"
-
+    
         @inventories = Inventory.includes(:item)
-
+    
         if params[:search].present?
-            search_query = "%#{params[:search]}%"
-            @inventories = @inventories = @inventories.joins(:item).where("items.name LIKE ? OR inventories.location LIKE ? OR inventories.condition_of_item LIKE ? OR inventories.sku LIKE ?",
-                search_query, search_query, search_query, search_query)
+          search_query = "%#{params[:search]}%"
+          @inventories = @inventories.joins(:item).where("items.name LIKE ? OR inventories.location LIKE ? OR inventories.condition_of_item LIKE ? OR inventories.sku LIKE ?",
+                                                         search_query, search_query, search_query, search_query)
         end
-        
+    
         if sort_column == 'name'
-            @inventories = @inventories.order("items.name #{sort_direction}")
+          @inventories = @inventories.order(Arel.sql("items.name #{sort_direction}"))
         else
-            @inventories = @inventories.order("inventories.#{sort_column} #{sort_direction}")
+          @inventories = @inventories.order(Arel.sql("inventories.#{sort_column} #{sort_direction}"))
         end
-    end
+      end
 
     def show
     end
@@ -57,13 +54,13 @@ class InventoriesController < ApplicationController
           respond_to do |format|
             format.html { redirect_to inventories_path, notice: 'Inventory item was successfully updated.' }
             format.json { render json: { status: 'success' } }
-            format.js   # This will render edit.js.erb
+            format.js
           end
         else
           respond_to do |format|
             format.html { redirect_to inventories_path, alert: 'Error updating inventory item.' }
             format.json { render json: { status: 'error', errors: @inventory.errors.full_messages } }
-            format.js   # This will render edit.js.erb with errors
+            format.js
           end
         end
       end

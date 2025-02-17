@@ -1,14 +1,16 @@
 class ItemsController < ApplicationController
   def create
     @item = Item.new(item_params)
-
     if @item.save
       respond_to do |format|
-        format.html { redirect_to items_path, notice: 'Item was successfully created.'}
+        format.html { redirect_to inventories_path, notice: 'Item successfully created.' }
         format.js
       end
     else
-      render :new, status: :unprocessable_entity
+      respond_to do |format|
+        format.html { render 'inventories/index', status: :unprocessable_entity }
+        format.js
+      end
     end
   end
 
