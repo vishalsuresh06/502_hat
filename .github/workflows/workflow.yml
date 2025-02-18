@@ -42,7 +42,7 @@ jobs:
         run: |
           bundler exec rails db:create RAILS_ENV=test
           bundler exec rails db:migrate RAILS_ENV=test
-
+        
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
