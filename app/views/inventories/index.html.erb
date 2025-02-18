@@ -24,10 +24,11 @@
   </button>
 </div>
 
+<!-- Links to Other Resources -->
 <%= link_to 'Show Categories', categories_path %>
 <%= link_to 'Show Departments', departments_path %>
 <%= link_to 'Show Users', users_path %>
-
+<%= link_to "Sign Out", destroy_admin_session_path %>
 
 <!-- Inventory List (Wrapped in a Div for AJAX Updates) -->
 <div id="inventory-list">
